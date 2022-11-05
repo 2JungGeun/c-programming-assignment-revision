@@ -11,7 +11,7 @@ int main(void)
 		if (menucode == 0)
 			gLoop();
 		else if (menucode == 1)
-			GameInfo();
+			gameInfo();
 		else if (menucode == 2)
 			break;
 	}

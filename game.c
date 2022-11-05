@@ -1,7 +1,7 @@
 #include"game.h"
 #include"main.h"
 #include"util.h"
-struct success {
+struct Success {
 	int player_success;
 	int computer_success;
 };
@@ -9,7 +9,7 @@ struct Pos {
 	int x;
 	int y;
 };
-struct size {
+struct Size {
 	int x;
 	int y;
 };
@@ -90,7 +90,7 @@ int menuSelect()
 		}
 	}
 }
-void GameInfo()
+void gameInfo()
 {
 	system("cls");
 	printf("\n\n\n\n\n\n");
@@ -107,7 +107,7 @@ void GameInfo()
 		}
 	}
 }
-char Map[40][101] =
+char map[40][101] =
 {
 	{"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},//0
 	{"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},//1
@@ -172,7 +172,7 @@ void gLoop()
 	int Playing = 1;
 	int playerResult[5] = { 0,0,0,0,0 };
 	int computerResult[5] = { 0,0,0,0,0 };
-	struct success s = { 0, 0 };
+	struct Success s = { 0, 0 };
 	int playCount = 0;
 	while (Playing)
 	{
@@ -181,9 +181,10 @@ void gLoop()
 		struct Pos ballPos = { 47, 30 };
 		struct Pos peaplePos = { 46, 18 };
 		struct Pos scoreboardPos = {5, 35};
-		MapDraw();
+		mapDraw();
 		scoreboardDraw(scoreboardPos, playerResult, computerResult, playCount);
-		peaple_Draw(peaplePos);
+		peapleDraw(peaplePos);
+		tagetDraw(targetPos, peaplePos);
 		tagetDraw(targetPos, peaplePos);
 		ballDraw(ballPos);
 		do
@@ -191,12 +192,12 @@ void gLoop()
 			n = tagetMove(&targetPos, peaplePos);
 
 		} while (n != 5);
-		BALL_PEAPLE_MOVE(targetPos, &ballPos, &peaplePos);
+		ballPeapleMove(targetPos, &ballPos, &peaplePos);
 		playCount++;
-		playerResult[playCount - 1] = collision_desision(peaplePos.x, peaplePos.y, ballPos.x, ballPos.y);
-		computerResult[playCount - 1] = computer_desision();
+		playerResult[playCount - 1] = collisionDesision(peaplePos.x, peaplePos.y, ballPos.x, ballPos.y);
+		computerResult[playCount - 1] = computerDesision();
 		scoreboardDraw(scoreboardPos, playerResult, computerResult, playCount);
-		Sleep(1000);
+		Sleep(100);
 		if (playCount == 5)
 		{
 			for (int i = 0; i <= playCount; i++)
@@ -215,14 +216,14 @@ void gLoop()
 	Sleep(2000);
 	system("cls");
 }
-void MapDraw()
+void mapDraw()
 {
-	system("cls");
+	gotoxy(0, 0);
 	for (int x = 0; x < 40; x++)
 	{
 		for (int y = 0; y < 101; y++)
 		{
-			char temp = Map[x][y];
+			char temp = map[x][y];
 			if (temp == '0')
 			{
 				SetColor(lightblue, lightblue);
@@ -316,9 +317,9 @@ void ballRemove(struct Pos ballPos)
 		{
 			char temp = 0;
 			if (x == 0 || x == 2)
-				temp = Map[ballPos.y + x][ballPos.x + y + 1];
+				temp = map[ballPos.y + x][ballPos.x + y + 1];
 			else
-				temp = Map[ballPos.y + x][ballPos.x + y];
+				temp = map[ballPos.y + x][ballPos.x + y];
 
 			if (temp == '0')
 			{
@@ -338,7 +339,7 @@ void ballRemove(struct Pos ballPos)
 		}
 	}
 }
-void peaple_Draw(struct Pos peaplePos)
+void peapleDraw(struct Pos peaplePos)
 {
 	for (int y = 0; y < 6; y++)
 	{
@@ -354,14 +355,14 @@ void peaple_Draw(struct Pos peaplePos)
 		}
 	}
 }
-void peaple_Remove(struct Pos peaplePos)
+void peapleRemove(struct Pos peaplePos)
 {
 	for (int y = 0; y < 6; y++)
 	{
 		for (int x = 0; x < 9; x++)
 		{
 			gotoxy(peaplePos.x + x, peaplePos.y + y);
-			char temp = Map[peaplePos.y + y][peaplePos.x + x];
+			char temp = map[peaplePos.y + y][peaplePos.x + x];
 			if (temp == '0')
 			{
 				SetColor(lightblue, lightblue);
@@ -380,7 +381,7 @@ void peaple_Remove(struct Pos peaplePos)
 		}
 	}
 }
-void BALL_PEAPLE_MOVE(struct Pos targetPos, struct Pos* ballPos, struct Pos* peaplePos)
+void ballPeapleMove(struct Pos targetPos, struct Pos* ballPos, struct Pos* peaplePos)
 {
 	struct Pos recentPeaplePos = { 0, 0 };
 	int keyChoice = 0;
@@ -410,7 +411,7 @@ void BALL_PEAPLE_MOVE(struct Pos targetPos, struct Pos* ballPos, struct Pos* pea
 		{
 			for (int i = 0; i < 10; i++)
 			{
-				peaple_Remove(*peaplePos);
+				peapleRemove(*peaplePos);
 				ballRemove(*ballPos);
 				if (recentPeaplePos.x > peaplePos->x)
 				{
@@ -436,16 +437,16 @@ void BALL_PEAPLE_MOVE(struct Pos targetPos, struct Pos* ballPos, struct Pos* pea
 				}
 				d_ballPosY -= delta_ballPosY;
 				ballPos->y = d_ballPosY;
-				peaple_Draw(*peaplePos);
+				peapleDraw(*peaplePos);
 				ballDraw(*ballPos);
-				Sleep(500);
+				Sleep(10 + i);
 			}
 		}
 	}
 }
 void tagetDraw(struct Pos targetPos, struct Pos peaplePos)
 {
-	struct size peapleSize = { 8, 6 };
+	struct Size peapleSize = { 8, 6 };
 	if ((targetPos.x >= peaplePos.x) && (targetPos.x < peaplePos.x + peapleSize.x))
 	{
 		if ((targetPos.y >= peaplePos.y) && (targetPos.y <= peaplePos.y + peapleSize.y))
@@ -456,7 +457,7 @@ void tagetDraw(struct Pos targetPos, struct Pos peaplePos)
 		}
 		else
 		{
-			char temp = Map[targetPos.y][targetPos.x];
+			char temp = map[targetPos.y][targetPos.x];
 			if (temp == '0')
 			{
 				SetColor(yellow, lightblue);
@@ -473,7 +474,7 @@ void tagetDraw(struct Pos targetPos, struct Pos peaplePos)
 	}
 	else
 	{
-		char temp = Map[targetPos.y][targetPos.x];
+		char temp = map[targetPos.y][targetPos.x];
 		if (temp == '0')
 		{
 			SetColor(yellow, lightblue);
@@ -501,7 +502,7 @@ void tagetRemove(int targetPosX, int targetPosY)
 		}
 		else
 		{
-			char temp = Map[targetPosY][targetPosX];
+			char temp = map[targetPosY][targetPosX];
 			if (temp == '0')
 			{
 				SetColor(yellow, lightblue);
@@ -524,7 +525,7 @@ void tagetRemove(int targetPosX, int targetPosY)
 	}
 	else
 	{
-		char temp = Map[targetPosY][targetPosX];
+		char temp = map[targetPosY][targetPosX];
 		if (temp == '0')
 		{
 			SetColor(yellow, lightblue);
@@ -579,7 +580,7 @@ int tagetMove(struct Pos* targetPos, struct Pos peaplePos)
 	}
 	return n;
 }
-int collision_desision(int px, int py, int bx, int by)
+int collisionDesision(int px, int py, int bx, int by)
 {
 	if ((px - 5 <= bx) && (bx <= px + 8))
 	{
@@ -597,7 +598,7 @@ int collision_desision(int px, int py, int bx, int by)
 		return 2;
 	}
 }
-int computer_desision()
+int computerDesision()
 {
 	srand(time(NULL));
 	int computer_desision = 0;
@@ -609,7 +610,7 @@ int computer_desision()
 	return computer_desision;
 }
 
-void result(struct success s)
+void result(struct Success s)
 {
 	if (s.player_success > s.computer_success)
 	{
